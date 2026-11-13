@@ -15,9 +15,9 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Build application
-        run: |
-          ddotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+     - name: Build application
+  run: |
+    dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
