@@ -1,29 +1,34 @@
-name: Mirror to GitLab
+name: Build executable
 
 on:
-  push:
-    branches: [ "master", "main" ]
-    tags:
-      - '*'
   workflow_dispatch:
 
-
 jobs:
-  mirror:
-    if: github.repository == 'k1tbyte/Wand-Enhancer'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
+  build:
+    runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
-          fetch-depth: 0
-          
-      - name: Push to GitLab
-        env:
-          GITLAB_USERNAME: kitbyte
-          GITLAB_REPO: Wand-Enhancer
+          dotnet-version: '8.0.x'
+
+      - name: Find and build project
         run: |
-          git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/$GITLAB_USERNAME/$GITLAB_REPO.git
-          git push gitlab --all --force
-          git push gitlab --tags --force
+          # Recherche automatique du fichier .csproj dans le dépôt et publication
+          $csproj = Get-ChildItem -Recurse -Filter *.csproj | Select-Object -First 1
+          if ($csproj) {
+            Write-Host "Projet trouvé : $($csproj.FullName)"
+            dotnet publish $csproj.FullName -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish
+          } else {
+            Write-Error "Aucun fichier .csproj trouvé dans le dépôt !"
+            exit 1
+          }
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WandEnhancer
+          path: ./publish/
