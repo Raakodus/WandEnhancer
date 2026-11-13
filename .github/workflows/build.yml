@@ -15,15 +15,14 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Build and publish project
+      - name: Publish project
         run: |
-          # Recherche et compilation directe du fichier .csproj sans option de sortie conflictuelle
           $csproj = Get-ChildItem -Recurse -Filter *.csproj | Select-Object -First 1
           if ($csproj) {
             Write-Host "Projet trouvé : $($csproj.FullName)"
             dotnet publish $csproj.FullName -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
           } else {
-            Write-Error "Aucun fichier .csproj trouvé dans le dépôt !"
+            Write-Error "Aucun .csproj trouvé"
             exit 1
           }
 
@@ -31,4 +30,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: WandEnhancer
-          path: '**/publish/*'
+          path: '**/publish/'
