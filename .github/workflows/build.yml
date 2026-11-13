@@ -20,9 +20,9 @@ jobs:
           $csproj = Get-ChildItem -Recurse -Filter *.csproj | Select-Object -First 1
           if ($csproj) {
             Write-Host "Projet trouvé : $($csproj.FullName)"
-            dotnet publish $csproj.FullName -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish
+            dotnet publish $csproj.FullName -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish_output
           } else {
-            Write-Error "Aucun fichier .csproj trouvé dans le dépôt !"
+            Write-Error "Aucun fichier .csproj trouvé !"
             exit 1
           }
 
@@ -30,4 +30,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: WandEnhancer
-          path: ./publish/
+          path: publish_output/
